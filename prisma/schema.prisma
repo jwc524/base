@@ -1,0 +1,308 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ────────────────────────────────────────
+// ENUMS
+// ────────────────────────────────────────
+
+enum AccountType {
+  ARTIST
+  MUSICIAN
+}
+
+enum Instrument {
+  KEYS
+  BASS
+  DRUMS
+  GUITAR
+  VOCALS
+  HORNS
+  STRINGS
+  PERCUSSION
+  OTHER
+}
+
+enum RootNote {
+  C
+  D
+  E
+  F
+  G
+  A
+  B
+}
+
+enum Accidental {
+  NATURAL
+  SHARP
+  FLAT
+}
+
+enum Tonality {
+  MAJOR
+  MINOR
+  DORIAN
+  MIXOLYDIAN
+  LYDIAN
+  PHRYGIAN
+  LOCRIAN
+}
+
+enum FileType {
+  PDF
+  AUDIO
+  VIDEO
+  IMAGE
+}
+
+// ────────────────────────────────────────
+// USER & PROFILE
+// ────────────────────────────────────────
+
+model User {
+  id          String      @id @default(cuid())
+  clerkId     String      @unique
+  email       String      @unique
+  name        String
+  bio         String?
+  location    String?
+  photoUrl    String?
+  accountType AccountType @default(MUSICIAN)
+  instruments Instrument[]
+  genres      String[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  ownedTours      Tour[]        @relation("TourOwner")
+  ownedShows      Show[]        @relation("ShowOwner")
+  ownedSetlists   Setlist[]     @relation("SetlistOwner")
+  ownedSongs      Song[]        @relation("SongOwner")
+  showMemberships ShowMember[]
+  rehearsalAttendance RehearsalAttendee[]
+}
+
+// ────────────────────────────────────────
+// TOUR
+// ────────────────────────────────────────
+
+model Tour {
+  id              String    @id @default(cuid())
+  name            String
+  startDate       DateTime?
+  endDate         DateTime?
+  description     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Owner
+  ownerId         String
+  owner           User      @relation("TourOwner", fields: [ownerId], references: [id])
+
+  // Default setlist for the tour
+  defaultSetlistId String?  @unique
+  defaultSetlist   Setlist? @relation("TourDefaultSetlist", fields: [defaultSetlistId], references: [id])
+
+  // Relations
+  shows           Show[]
+}
+
+// ────────────────────────────────────────
+// SHOW
+// ────────────────────────────────────────
+
+model Show {
+  id              String    @id @default(cuid())
+  name            String
+  date            DateTime
+  venue           String?
+  city            String?
+  notes           String?
+  soundcheckTime  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Owner
+  ownerId         String
+  owner           User      @relation("ShowOwner", fields: [ownerId], references: [id])
+
+  // Tour (optional)
+  tourId          String?
+  tour            Tour?     @relation(fields: [tourId], references: [id])
+
+  // Relations
+  setlists        Setlist[]
+  members         ShowMember[]
+  rehearsals      Rehearsal[]
+}
+
+// ────────────────────────────────────────
+// SHOW MEMBER (roster)
+// ────────────────────────────────────────
+
+model ShowMember {
+  id          String     @id @default(cuid())
+  instrument  Instrument
+  isMD        Boolean    @default(false)
+  notes       String?
+  createdAt   DateTime   @default(now())
+
+  // Relations
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  showId      String
+  show        Show       @relation(fields: [showId], references: [id])
+
+  @@unique([userId, showId])
+}
+
+// ────────────────────────────────────────
+// REHEARSAL
+// ────────────────────────────────────────
+
+model Rehearsal {
+  id          String    @id @default(cuid())
+  date        DateTime
+  location    String?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  showId      String
+  show        Show      @relation(fields: [showId], references: [id])
+  setlistId   String?
+  setlist     Setlist?  @relation(fields: [setlistId], references: [id])
+  attendees   RehearsalAttendee[]
+}
+
+model RehearsalAttendee {
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+
+  userId       String
+  user         User      @relation(fields: [userId], references: [id])
+  rehearsalId  String
+  rehearsal    Rehearsal @relation(fields: [rehearsalId], references: [id])
+
+  @@unique([userId, rehearsalId])
+}
+
+// ────────────────────────────────────────
+// SETLIST
+// ────────────────────────────────────────
+
+model Setlist {
+  id          String    @id @default(cuid())
+  name        String
+  isPublic    Boolean   @default(false)
+  shareToken  String    @unique @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Owner
+  ownerId     String
+  owner       User      @relation("SetlistOwner", fields: [ownerId], references: [id])
+
+  // Show (optional)
+  showId      String?
+  show        Show?     @relation(fields: [showId], references: [id])
+
+  // Relations
+  cues              Cue[]
+  rehearsals        Rehearsal[]
+  tourDefaultFor    Tour?       @relation("TourDefaultSetlist")
+}
+
+// ────────────────────────────────────────
+// CUE (song slot in a setlist)
+// ────────────────────────────────────────
+
+model Cue {
+  id            String   @id @default(cuid())
+  position      Int
+  notes         String?  // show-specific notes
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  setlistId     String
+  setlist       Setlist      @relation(fields: [setlistId], references: [id])
+  songId        String
+  song          Song         @relation(fields: [songId], references: [id])
+  arrangementId String?
+  arrangement   Arrangement? @relation(fields: [arrangementId], references: [id])
+
+  @@unique([setlistId, position])
+}
+
+// ────────────────────────────────────────
+// SONG
+// ────────────────────────────────────────
+
+model Song {
+  id        String   @id @default(cuid())
+  title     String
+  artist    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Owner
+  ownerId   String
+  owner     User     @relation("SongOwner", fields: [ownerId], references: [id])
+
+  // Relations
+  arrangements Arrangement[]
+  cues         Cue[]
+}
+
+// ────────────────────────────────────────
+// ARRANGEMENT
+// ────────────────────────────────────────
+
+model Arrangement {
+  id            String      @id @default(cuid())
+  name          String      // e.g. "Full Band", "Acoustic", "Main"
+  isDefault     Boolean     @default(false)
+  notes         String?
+
+  // Key
+  rootNote      RootNote?
+  accidental    Accidental? @default(NATURAL)
+  tonality      Tonality?   @default(MAJOR)
+
+  // Tempo
+  bpm           Int?
+  timeSignature String?     // e.g. "4/4", "3/4", "6/8"
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relations
+  songId        String
+  song          Song        @relation(fields: [songId], references: [id])
+  files         File[]
+  cues          Cue[]
+}
+
+// ────────────────────────────────────────
+// FILE
+// ────────────────────────────────────────
+
+model File {
+  id            String      @id @default(cuid())
+  label         String?     // e.g. "Lead Sheet", "Reference Track"
+  fileType      FileType
+  url           String      // S3 URL
+  createdAt     DateTime    @default(now())
+
+  // Relations
+  arrangementId String
+  arrangement   Arrangement @relation(fields: [arrangementId], references: [id])
+}
