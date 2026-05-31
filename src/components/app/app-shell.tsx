@@ -11,9 +11,9 @@ import {
   User,
   type LucideIcon,
 } from "lucide-react";
-import { AccountType } from "@/generated/prisma/enums";
-import { AccountTypeBadge } from "@/components/app/account-type-badge";
+import { SidebarOrganizationSwitcher } from "@/components/app/sidebar-organization-switcher";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useSyncOrganization } from "@/hooks/use-sync-organization";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -33,13 +33,13 @@ type AppShellProps = {
   children: React.ReactNode;
   user: {
     name: string;
-    accountType: AccountType;
     imageUrl: string | null;
   };
 };
 
 export function AppShell({ children, user }: AppShellProps) {
   const pathname = usePathname();
+  useSyncOrganization();
   const initials = user.name
     .split(" ")
     .map((part) => part[0])
@@ -97,21 +97,19 @@ export function AppShell({ children, user }: AppShellProps) {
                 {initials}
               </AvatarFallback>
             </Avatar>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-white">
-                {user.name}
-              </p>
-              <AccountTypeBadge
-                accountType={user.accountType}
-                className="mt-1"
-              />
-            </div>
+            <p className="min-w-0 flex-1 truncate text-sm font-medium text-white">
+              {user.name}
+            </p>
+          </div>
+
+          <div className="mt-3">
+            <SidebarOrganizationSwitcher />
           </div>
 
           <SignOutButton redirectUrl="/">
             <button
               type="button"
-              className="mt-4 flex w-full items-center gap-2 rounded-lg px-1 py-1.5 text-sm text-white/40 transition-colors hover:text-white"
+              className="mt-3 flex w-full items-center gap-2 rounded-lg px-1 py-1.5 text-sm text-white/40 transition-colors hover:text-white"
             >
               <LogOut className="size-4 shrink-0" />
               Sign out
@@ -121,6 +119,9 @@ export function AppShell({ children, user }: AppShellProps) {
       </aside>
 
       <div className="flex min-h-screen flex-1 flex-col md:pl-60">
+        <div className="border-b border-white/8 px-4 py-3 md:hidden">
+          <SidebarOrganizationSwitcher compact />
+        </div>
         <main className="flex-1 overflow-y-auto pb-20 md:pb-0">{children}</main>
 
         <nav className="fixed inset-x-0 bottom-0 z-30 flex h-16 items-center justify-around border-t border-white/8 bg-[#080810]/95 backdrop-blur-md md:hidden">

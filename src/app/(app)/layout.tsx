@@ -14,7 +14,6 @@ export default async function AppLayout({
     <AppShell
       user={{
         name: user.name,
-        accountType: user.accountType,
         imageUrl: clerkUser?.imageUrl ?? user.photoUrl ?? null,
       }}
     >
