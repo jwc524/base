@@ -7,6 +7,7 @@ import {
   Calendar,
   LayoutDashboard,
   LogOut,
+  Shield,
   Ticket,
   User,
   type LucideIcon,
@@ -35,9 +36,10 @@ type AppShellProps = {
     name: string;
     imageUrl: string | null;
   };
+  isAdmin?: boolean;
 };
 
-export function AppShell({ children, user }: AppShellProps) {
+export function AppShell({ children, user, isAdmin = false }: AppShellProps) {
   const pathname = usePathname();
   useSyncOrganization();
   const initials = user.name
@@ -85,6 +87,19 @@ export function AppShell({ children, user }: AppShellProps) {
               </Link>
             );
           })}
+          {isAdmin ? (
+            <Link
+              href="/admin"
+              className={cn(
+                "mt-2 flex items-center gap-3 rounded-lg border border-dashed border-white/10 px-3 py-2.5 text-sm font-medium text-white/40 transition-colors hover:border-white/20 hover:bg-white/5 hover:text-white/70",
+                pathname.startsWith("/admin") &&
+                  "border-white/20 bg-white/5 text-white/70",
+              )}
+            >
+              <Shield className="size-4 shrink-0" />
+              Admin
+            </Link>
+          ) : null}
         </nav>
 
         <div className="border-t border-white/8 p-4">
@@ -119,8 +134,22 @@ export function AppShell({ children, user }: AppShellProps) {
       </aside>
 
       <div className="flex min-h-screen flex-1 flex-col md:pl-60">
-        <div className="border-b border-white/8 px-4 py-3 md:hidden">
-          <SidebarOrganizationSwitcher compact />
+        <div className="flex items-center gap-2 border-b border-white/8 px-4 py-3 md:hidden">
+          <div className="min-w-0 flex-1">
+            <SidebarOrganizationSwitcher compact />
+          </div>
+          {isAdmin ? (
+            <Link
+              href="/admin"
+              aria-label="Admin"
+              className={cn(
+                "flex size-9 shrink-0 items-center justify-center rounded-lg border border-dashed border-white/10 text-white/40 transition-colors hover:border-white/20 hover:text-white/70",
+                pathname.startsWith("/admin") && "border-white/20 text-white/70",
+              )}
+            >
+              <Shield className="size-4" />
+            </Link>
+          ) : null}
         </div>
         <main className="flex-1 overflow-y-auto pb-20 md:pb-0">{children}</main>
 
