@@ -76,6 +76,8 @@ model User {
   accountType AccountType @default(MUSICIAN)
   instruments Instrument[]
   genres      String[]
+  betaFeatures String[]
+  pricingTier  String      @default("FREE")
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
@@ -136,6 +138,10 @@ model Show {
   tourId          String?
   tour            Tour?     @relation(fields: [tourId], references: [id])
 
+  // Band (optional)
+  bandId          String?
+  band            Band?     @relation(fields: [bandId], references: [id])
+
   // Relations
   setlists        Setlist[]
   members         ShowMember[]
@@ -160,6 +166,32 @@ model ShowMember {
   show        Show       @relation(fields: [showId], references: [id])
 
   @@unique([userId, showId])
+}
+
+// ────────────────────────────────────────
+// ORGANIZATION (synced from Clerk)
+// ────────────────────────────────────────
+
+model Organization {
+  id         String   @id @default(cuid())
+  clerkOrgId String   @unique // references Clerk's org
+  name       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  bands Band[]
+}
+
+model Band {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  shows Show[]
 }
 
 // ────────────────────────────────────────
