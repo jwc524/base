@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { ShowSetlistSection } from "@/components/setlist/show-setlist-section";
 import { requireUser } from "@/lib/auth";
 import { formatShowDate, formatShowTime } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
@@ -17,6 +18,12 @@ export default async function ShowDetailPage({ params }: ShowDetailPageProps) {
 
   const show = await prisma.show.findFirst({
     where: { id, ownerId: user.id },
+    include: {
+      setlists: {
+        orderBy: { createdAt: "desc" },
+        select: { id: true, name: true },
+      },
+    },
   });
 
   if (!show) {
@@ -43,15 +50,10 @@ export default async function ShowDetailPage({ params }: ShowDetailPageProps) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <section className={cn(glassCard, "p-6")}>
-          <h2 className="text-sm font-medium text-white">Setlist</h2>
-          <div className="mt-6 flex flex-col items-center py-6 text-center">
-            <p className="text-white/60">No setlist yet</p>
-            <Button className="mt-4 rounded-lg bg-indigo-500 text-white hover:bg-indigo-400">
-              Create Setlist
-            </Button>
-          </div>
-        </section>
+        <ShowSetlistSection
+          showId={show.id}
+          setlists={show.setlists}
+        />
 
         <section className={cn(glassCard, "p-6")}>
           <h2 className="text-sm font-medium text-white">Roster</h2>
