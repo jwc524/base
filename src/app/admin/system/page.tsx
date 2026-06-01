@@ -1,6 +1,8 @@
 import { adminCard, adminHeading, adminMuted } from "@/lib/admin-styles";
 import { cn } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export default function AdminSystemPage() {
   return (
     <div className="space-y-8">

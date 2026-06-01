@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/admin";
 import { getAdminStats } from "@/lib/admin-stats";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const forbidden = await requireAdminApi();
   if (forbidden) return forbidden;

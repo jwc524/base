@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { syncOrganization } from "@/lib/syncOrganization";
 
+export const dynamic = "force-dynamic";
+
 type SyncBody = {
   id?: string;
   name?: string;

@@ -7,6 +7,8 @@ import {
   verifySetlistOwner,
 } from "@/lib/setlist-queries";
 
+export const dynamic = "force-dynamic";
+
 type CreateCueBody = {
   setlistId?: string;
   songId?: string;

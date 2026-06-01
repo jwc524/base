@@ -3,6 +3,8 @@ import { requireUser } from "@/lib/auth";
 import { glassCard } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const user = await requireUser();
 

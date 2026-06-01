@@ -1,5 +1,7 @@
 import { OrganizationsTest } from "./organizations-test";
 
+export const dynamic = "force-dynamic";
+
 export default function OrganizationsPage() {
   return (
     <div className="p-6 md:p-8">

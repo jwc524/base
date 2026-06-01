@@ -3,6 +3,8 @@ import { getApiUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { verifyShowOwner } from "@/lib/setlist-queries";
 
+export const dynamic = "force-dynamic";
+
 type CreateSetlistBody = {
   name?: string;
   showId?: string;

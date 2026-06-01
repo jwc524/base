@@ -3,6 +3,8 @@ import { getApiUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { getSetlistDetail, verifyCueOwner } from "@/lib/setlist-queries";
 
+export const dynamic = "force-dynamic";
+
 type RouteParams = { params: Promise<{ id: string }> };
 
 type PatchCueBody = {

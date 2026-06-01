@@ -3,6 +3,8 @@ import { AccountType } from "@/generated/prisma/enums";
 import { requireAdminApi } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 type CreateFlagBody = {
   name?: string;
   description?: string;

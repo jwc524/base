@@ -9,6 +9,8 @@ import {
 } from "@/lib/admin-styles";
 import { cn } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
     <div className={cn(adminCard, "p-5")}>

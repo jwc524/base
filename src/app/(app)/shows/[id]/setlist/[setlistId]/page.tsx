@@ -3,6 +3,8 @@ import { SetlistBuilder } from "@/components/setlist/setlist-builder";
 import { requireUser } from "@/lib/auth";
 import { getSetlistDetail } from "@/lib/setlist-queries";
 
+export const dynamic = "force-dynamic";
+
 type SetlistBuilderPageProps = {
   params: Promise<{ id: string; setlistId: string }>;
 };

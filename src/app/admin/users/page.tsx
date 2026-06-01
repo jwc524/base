@@ -2,6 +2,8 @@ import { AdminUsersTable } from "@/components/admin/admin-users-table";
 import { adminHeading, adminSubheading } from "@/lib/admin-styles";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminUsersPage() {
   const [users, flags] = await Promise.all([
     prisma.user.findMany({

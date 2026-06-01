@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { Instrument } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 type UpdateProfileBody = {
   name?: string;
   bio?: string;

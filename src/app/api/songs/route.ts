@@ -3,6 +3,8 @@ import { Accidental, Tonality } from "@/generated/prisma/enums";
 import { getApiUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 type CreateSongBody = {
   title?: string;
   artist?: string;

@@ -8,6 +8,8 @@ import { prisma } from "@/lib/prisma";
 import { glassCard } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 type ShowDetailPageProps = {
   params: Promise<{ id: string }>;
 };

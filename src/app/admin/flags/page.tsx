@@ -2,6 +2,8 @@ import { AdminFlagsPanel } from "@/components/admin/admin-flags-panel";
 import { adminHeading, adminSubheading } from "@/lib/admin-styles";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminFlagsPage() {
   const flags = await prisma.featureFlag.findMany({
     orderBy: { name: "asc" },

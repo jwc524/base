@@ -1,6 +1,8 @@
 import { glassCard } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export default function CalendarPage() {
   return (
     <div className="p-6 md:p-8">

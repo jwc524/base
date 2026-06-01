@@ -2,6 +2,8 @@ import { AdminCodesPanel } from "@/components/admin/admin-codes-panel";
 import { adminHeading, adminSubheading } from "@/lib/admin-styles";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminCodesPage() {
   const codes = await prisma.discountCode.findMany({
     orderBy: { createdAt: "desc" },

@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { OnboardingForm } from "./onboarding-form";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export default async function OnboardingPage() {
   const clerkUser = await currentUser();
 
