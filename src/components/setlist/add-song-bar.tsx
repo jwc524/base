@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Plus, Search } from "lucide-react";
+import { Loader2, Music2, Plus, Search, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { glassCard, inputClass } from "@/lib/styles";
@@ -19,6 +19,7 @@ export function AddSongBar({ setlistId, onSetlistUpdated }: AddSongBarProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [open, setOpen] = useState(false);
+  const [focused, setFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -127,77 +128,125 @@ export function AddSongBar({ setlistId, onSetlistUpdated }: AddSongBarProps) {
   const exactMatch = results.some(
     (song) => song.title.toLowerCase() === trimmed.toLowerCase(),
   );
+  const showDropdown = open && trimmed.length > 0;
 
   return (
     <div
       ref={containerRef}
       className={cn(
         glassCard,
-        "sticky bottom-4 z-20 border-indigo-500/20 p-4 shadow-lg shadow-black/40",
+        "sticky bottom-4 z-20 overflow-hidden border transition-shadow duration-300",
+        focused || showDropdown
+          ? "border-indigo-500/40 shadow-lg shadow-indigo-500/10"
+          : "border-white/10 shadow-xl shadow-black/40",
       )}
     >
-      <div className="relative">
-        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-white/30" />
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => trimmed && setOpen(true)}
-          placeholder="Search songs to add..."
-          disabled={isAdding}
-          className={cn(inputClass, "pl-10")}
-        />
-        {(isSearching || isAdding) && (
-          <Loader2 className="absolute top-1/2 right-3 size-4 -translate-y-1/2 animate-spin text-white/40" />
-        )}
+      <div className="border-b border-white/5 bg-gradient-to-r from-indigo-500/10 via-transparent to-amber-500/5 px-4 py-2">
+        <p className="flex items-center gap-1.5 text-xs font-medium text-white/50">
+          <Sparkles className="size-3 text-indigo-400" />
+          Add to setlist
+        </p>
       </div>
 
-      {open && trimmed ? (
-        <div className="mt-2 max-h-64 overflow-y-auto rounded-lg border border-white/10 bg-[#12121a]">
-          {results.length === 0 && !isSearching ? (
-            <button
-              type="button"
-              disabled={isAdding}
-              onClick={() => void createAndAddSong(trimmed)}
-              className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-amber-400 transition-colors hover:bg-white/5"
-            >
-              <Plus className="size-4 shrink-0" />
-              Create new song: {trimmed}
-            </button>
-          ) : (
-            <>
-              {results.map((song) => (
-                <button
-                  key={song.id}
-                  type="button"
-                  disabled={isAdding}
-                  onClick={() =>
-                    void addCue(song.id, song.defaultArrangementId)
-                  }
-                  className="flex w-full flex-col px-4 py-3 text-left transition-colors hover:bg-white/5"
-                >
-                  <span className="text-sm font-medium text-white">
-                    {song.title}
-                  </span>
-                  {song.artist ? (
-                    <span className="text-xs text-white/50">{song.artist}</span>
-                  ) : null}
-                </button>
-              ))}
-              {!exactMatch && trimmed ? (
+      <div className="p-3">
+        <div className="relative">
+          <Search className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-white/30" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onFocus={() => {
+              setFocused(true);
+              if (trimmed) setOpen(true);
+            }}
+            onBlur={() => setFocused(false)}
+            placeholder="Search your songs..."
+            disabled={isAdding}
+            className={cn(
+              inputClass,
+              "h-11 rounded-lg border-white/10 bg-white/[0.04] pl-10 pr-10 text-sm transition-colors focus:border-indigo-500/50 focus:bg-white/[0.06]",
+            )}
+          />
+          {(isSearching || isAdding) && (
+            <Loader2 className="absolute top-1/2 right-3.5 size-4 -translate-y-1/2 animate-spin text-indigo-400/80" />
+          )}
+        </div>
+
+        <div
+          className={cn(
+            "grid transition-all duration-200 ease-out",
+            showDropdown
+              ? "mt-2 grid-rows-[1fr] opacity-100"
+              : "grid-rows-[0fr] opacity-0",
+          )}
+        >
+          <div className="overflow-hidden">
+            <div className="max-h-56 overflow-y-auto rounded-lg border border-white/10 bg-[#0e0e16]/95 backdrop-blur-md">
+              {results.length === 0 && !isSearching ? (
                 <button
                   type="button"
                   disabled={isAdding}
                   onClick={() => void createAndAddSong(trimmed)}
-                  className="flex w-full items-center gap-2 border-t border-white/10 px-4 py-3 text-left text-sm text-amber-400 transition-colors hover:bg-white/5"
+                  className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-amber-500/10"
                 >
-                  <Plus className="size-4 shrink-0" />
-                  Create new song: {trimmed}
+                  <span className="flex size-8 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400">
+                    <Plus className="size-4" />
+                  </span>
+                  <span className="text-sm">
+                    <span className="text-white/50">Create new song: </span>
+                    <span className="font-medium text-amber-400">{trimmed}</span>
+                  </span>
                 </button>
-              ) : null}
-            </>
-          )}
+              ) : (
+                <>
+                  {results.map((song) => (
+                    <button
+                      key={song.id}
+                      type="button"
+                      disabled={isAdding}
+                      onClick={() =>
+                        void addCue(song.id, song.defaultArrangementId)
+                      }
+                      className="flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left transition-colors last:border-0 hover:bg-white/5"
+                    >
+                      <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-indigo-500/15 text-indigo-400">
+                        <Music2 className="size-4" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-medium text-white">
+                          {song.title}
+                        </span>
+                        {song.artist ? (
+                          <span className="block truncate text-xs text-white/45">
+                            {song.artist}
+                          </span>
+                        ) : null}
+                      </span>
+                    </button>
+                  ))}
+                  {!exactMatch && trimmed ? (
+                    <button
+                      type="button"
+                      disabled={isAdding}
+                      onClick={() => void createAndAddSong(trimmed)}
+                      className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-amber-500/10"
+                    >
+                      <span className="flex size-8 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400">
+                        <Plus className="size-4" />
+                      </span>
+                      <span className="text-sm">
+                        <span className="text-white/50">Create new song: </span>
+                        <span className="font-medium text-amber-400">
+                          {trimmed}
+                        </span>
+                      </span>
+                    </button>
+                  ) : null}
+                </>
+              )}
+            </div>
+          </div>
         </div>
-      ) : null}
+      </div>
     </div>
   );
 }
